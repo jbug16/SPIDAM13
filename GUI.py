@@ -1,4 +1,7 @@
 import tkinter as tk
+from tkinter import filedialog
+import os
+import wave
 
 class AudioApp:
     def __init__(self, root):
@@ -37,7 +40,27 @@ class AudioApp:
         export_button.pack(pady=10)
 
     def load_audio(self):
-        return
+        self.file = filedialog.askopenfilename(
+            initialdir="/",
+            title="Select a File",
+            filetypes=[("Audio files", "*.wav"), ("All files", "*.*")]
+        )
+
+        # Get duration using wave
+        try:
+            with wave.open(self.file, 'rb') as wav_file:
+                self.file_name.set(os.path.basename(self.file))
+        except Exception as e:
+            self.file_name.set("No file selected")
+        # Get duration using wave
+        try:
+            with wave.open(self.file, 'rb') as wav_file:
+                frames = wav_file.getnframes()
+                rate = wav_file.getframerate()
+                duration = frames / float(rate)
+                self.duration.set(f"Duration: {duration:.2f} seconds")
+        except Exception as e:
+            self.duration.set("Duration: N/A")
 
     def combine_plots(self):
         return
