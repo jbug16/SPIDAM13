@@ -9,11 +9,16 @@ class AudioApp:
         self.root.title("SPIDAM")
 
         # Set Window Size
-        self.root.geometry("400x300")
+        self.root.geometry("800x600")
 
         # Variables
         self.file_name = tk.StringVar(value="No file selected")
         self.duration = tk.StringVar(value="Duration: N/A")
+        self.highest_resonance = tk.StringVar(value="Highest Resonance: N/A")
+        self.low_freq = tk.StringVar(value="Low Frequencies: N/A")
+        self.mid_freq = tk.StringVar(value="Mid Frequencies: N/A")
+        self.high_freq = tk.StringVar(value="High Frequencies: N/A")
+        self.rt60_difference = tk.StringVar(value="Difference in RT60: N/A")
 
         # Widgets
         self.create_widgets()
@@ -38,6 +43,24 @@ class AudioApp:
         # Export Button
         export_button = tk.Button(self.root, text="Export Plot", command=self.export_plot)
         export_button.pack(pady=10)
+
+        # Display Resonance
+        self.resonance_label = tk.Label(self.root, textvariable=self.highest_resonance)
+        self.resonance_label.pack(pady=5)
+
+        # Display Frequencies
+        self.low_freq_label = tk.Label(self.root, textvariable=self.low_freq)
+        self.low_freq_label.pack(pady=5)
+
+        self.mid_freq_label = tk.Label(self.root, textvariable=self.mid_freq)
+        self.mid_freq_label.pack(pady=5)
+        
+        self.high_freq_label = tk.Label(self.root, textvariable=self.high_freq)
+        self.high_freq_label.pack(pady=5)
+        
+        # Display Difference in RT60
+        self.difference_label = tk.Label(self.root, textvariable=self.rt60_difference)
+        self.difference_label.pack(pady=5)
 
     def load_audio(self):
         self.file = filedialog.askopenfilename(
