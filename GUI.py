@@ -9,6 +9,9 @@ class GUI:
         # Set Window Size
         self.root.geometry("800x600")
 
+        # Fullscreen window
+        root.state("zoomed")
+
         # Variables
         self.file_name = tk.StringVar(value="No file selected")
         self.duration = tk.StringVar(value="Duration: N/A")

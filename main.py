@@ -1,5 +1,5 @@
 import tkinter as tk
-from gui import GUI
+from GUI import GUI
 
 # Run the application
 if __name__ == "__main__":
