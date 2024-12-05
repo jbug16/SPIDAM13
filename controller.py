@@ -1,6 +1,7 @@
 from tkinter import filedialog
 import os
 import wave
+from SPIDAM_model import Model
 
 # Global StringVars to share state with the GUI
 file_name = None
@@ -16,7 +17,7 @@ def load_audio():
     file = filedialog.askopenfilename(
         initialdir="/",
         title="Select a File",
-        filetypes=[("Audio files", "*.wav"), ("All files", "*.*")]
+        filetypes=[("Audio files", "*.mp3 *.wav *.ogg *.flac"), ("All files", "*.*")]
     )
 
     # Return early if file not selected
@@ -25,11 +26,18 @@ def load_audio():
         duration.set("Duration: N/A")
         return
 
-    # Get file name
-    file_name.set(os.path.basename(file))
+    # Set file for Model
+    model = Model()
+    model.original_file = file
 
-    # Get duration
     try:
+        # Try to convert to .wav
+        model.to_wav()
+
+        # Get file name
+        file_name.set(os.path.basename(file))
+    
+        # Get duration
         with wave.open(file, 'rb') as wav_file:
             frames = wav_file.getnframes()
             rate = wav_file.getframerate()
