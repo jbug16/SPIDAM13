@@ -7,6 +7,9 @@ from SPIDAM_model import Model
 file_name = None
 duration = None
 
+# Reference Model
+model = Model()
+
 def initialize_vars(fn_var, dur_var):
     global file_name, duration
     file_name = fn_var
@@ -27,7 +30,6 @@ def load_audio():
         return
 
     # Set file for Model
-    model = Model()
     model.original_file = file
 
     try:
@@ -50,11 +52,12 @@ def load_audio():
         print(f"General error: {e}")  # Log general errors
         duration.set("Duration: N/A")
 
+def analyze_audio():
+    model.find_rt60()
+    print(model.rt60)
+
 def combine_plots():
     return
 
 def export_plot():
-    return
-
-def analyze_audio():
     return
