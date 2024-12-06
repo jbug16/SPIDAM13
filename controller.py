@@ -33,7 +33,7 @@ def load_file():
         duration.set("Duration: N/A")
         return
     
-    # Set file for Model
+    # Get data
     model.preprocess_data(file)
     model.get_data()
 
@@ -62,7 +62,7 @@ def plot_wave(frame):
     model.get_waveform_data()
 
     # Create figure
-    fig = Figure(figsize=(10, 6), dpi=100)
+    fig = Figure(figsize=(8, 4), dpi=100)
 
     # Clear and add subplot
     fig.clf()
@@ -78,6 +78,17 @@ def plot_wave(frame):
     canvas = FigureCanvasTkAgg(fig, frame)
     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
     canvas.draw()
+
+def placeholder_graph(frame):
+    # Add an empty graph to the graph frame
+    fig = Figure(figsize=(8, 4), dpi=100)
+    ax = fig.add_subplot(111)
+    ax.set_title("No data available")
+    ax.set_xlabel("N/A")
+    ax.set_ylabel("N/A")
+
+    canvas = FigureCanvasTkAgg(fig, frame)
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
 def analyze_audio():
     return
