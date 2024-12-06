@@ -3,12 +3,15 @@ import os
 import wave
 from SPIDAM_model import Model
 import matplotlib.pyplot as plt
+import tkinter as tk
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Global StringVars to share state with the GUI
 file_name = None
 duration = None
 
-# Reference Model
+# Reference Model class
 model = Model()
 
 def initialize_vars(fn_var, dur_var):
@@ -16,7 +19,7 @@ def initialize_vars(fn_var, dur_var):
     file_name = fn_var
     duration = dur_var
 
-def load_audio():
+def load_file():
     # Open directory
     file = filedialog.askopenfilename(
         initialdir="/",
@@ -29,9 +32,10 @@ def load_audio():
         file_name.set("No file selected")
         duration.set("Duration: N/A")
         return
-
+    
     # Set file for Model
-    model.original_file = file
+    model.preprocess_data(file)
+    model.get_data()
 
     try:
         # Try to convert to .wav
@@ -41,11 +45,7 @@ def load_audio():
         file_name.set(os.path.basename(file))
     
         # Get duration
-        with wave.open(file, 'rb') as wav_file:
-            frames = wav_file.getnframes()
-            rate = wav_file.getframerate()
-            dur = frames / float(rate)
-            duration.set(f"Duration: {dur:.2f} seconds")
+        duration.set(f"Duration: {model.time} seconds")
     except wave.Error as e:
         print(f"Wave error: {e}")  # Log wave-specific errors
         duration.set("Duration: N/A")
@@ -53,51 +53,34 @@ def load_audio():
         print(f"General error: {e}")  # Log general errors
         duration.set("Duration: N/A")
 
+def plot_wave(frame):
+    # Reset frame
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    # Get data needed
+    model.get_waveform_data()
+
+    # Create figure
+    fig = Figure(figsize=(10, 6), dpi=100)
+
+    # Clear and add subplot
+    fig.clf()
+    ax = fig.add_subplot(111)
+
+    # Plot
+    ax.plot(model.waveform_time, model.signal)
+    ax.set_xlabel('Time (s)')
+    ax.set_ylabel('Amplitude')
+    ax.set_title(f'Waveform of {file_name.get()}')
+
+    # Embed figure into frame
+    canvas = FigureCanvasTkAgg(fig, frame)
+    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    canvas.draw()
+
 def analyze_audio():
-    # Check if file has been loaded first
-    if not hasattr(model, "original_file") or not model.original_file:
-        print("No file loaded for analysis.")
-        return
-
-    try:
-        # Load and preprocess data
-        model.preprocess_data(model.original_file)
-        model.get_data()
-        model.get_waveform_data()
-        model.get_spec_data()
-
-        # Calculate RT60 and other metrics
-        model.find_rt60()
-        model.time = model.time if isinstance(model.time, list) else [0, 0.1, 0.2]  # Fallback for `time`
-        model.rt60 = [
-            band if isinstance(band, list) else [0 for _ in model.time]
-            for band in model.rt60
-        ]
-
-        # Debug prints
-        print("Time data:", model.time)
-        print("RT60 data (Low):", model.rt60[0])
-        print("RT60 data (Mid):", model.rt60[1])
-        print("RT60 data (High):", model.rt60[2])
-    except Exception as e:
-        print(f"Error during analysis: {e}")
-
-def plot_data(data, plot_type="line", title="", x_label="", y_label=""):
-    fig, ax = plt.subplots()
-    for label, series in data.items():
-        if plot_type == "line":
-            if not all(isinstance(x, (int, float)) for x in series["x"]):
-                raise ValueError(f"Non-numeric X data for {label}: {series['x']}")
-            if not all(isinstance(y, (int, float)) for y in series["y"]):
-                raise ValueError(f"Non-numeric Y data for {label}: {series['y']}")
-            ax.plot(series["x"], series["y"], label=label)
-    
-    ax.set_title(title)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.legend()
-    
-    return fig
+    return
 
 def combine_plots():
     return
