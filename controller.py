@@ -2,6 +2,7 @@ from tkinter import filedialog
 import os
 import wave
 from SPIDAM_model import Model
+import matplotlib.pyplot as plt
 
 # Global StringVars to share state with the GUI
 file_name = None
@@ -53,8 +54,50 @@ def load_audio():
         duration.set("Duration: N/A")
 
 def analyze_audio():
-    model.find_rt60()
-    print(model.rt60)
+    # Check if file has been loaded first
+    if not hasattr(model, "original_file") or not model.original_file:
+        print("No file loaded for analysis.")
+        return
+
+    try:
+        # Load and preprocess data
+        model.preprocess_data(model.original_file)
+        model.get_data()
+        model.get_waveform_data()
+        model.get_spec_data()
+
+        # Calculate RT60 and other metrics
+        model.find_rt60()
+        model.time = model.time if isinstance(model.time, list) else [0, 0.1, 0.2]  # Fallback for `time`
+        model.rt60 = [
+            band if isinstance(band, list) else [0 for _ in model.time]
+            for band in model.rt60
+        ]
+
+        # Debug prints
+        print("Time data:", model.time)
+        print("RT60 data (Low):", model.rt60[0])
+        print("RT60 data (Mid):", model.rt60[1])
+        print("RT60 data (High):", model.rt60[2])
+    except Exception as e:
+        print(f"Error during analysis: {e}")
+
+def plot_data(data, plot_type="line", title="", x_label="", y_label=""):
+    fig, ax = plt.subplots()
+    for label, series in data.items():
+        if plot_type == "line":
+            if not all(isinstance(x, (int, float)) for x in series["x"]):
+                raise ValueError(f"Non-numeric X data for {label}: {series['x']}")
+            if not all(isinstance(y, (int, float)) for y in series["y"]):
+                raise ValueError(f"Non-numeric Y data for {label}: {series['y']}")
+            ax.plot(series["x"], series["y"], label=label)
+    
+    ax.set_title(title)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.legend()
+    
+    return fig
 
 def combine_plots():
     return

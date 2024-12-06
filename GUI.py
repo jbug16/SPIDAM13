@@ -1,5 +1,14 @@
 import tkinter as tk
-from controller import load_audio, combine_plots, export_plot, analyze_audio, initialize_vars
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from controller import (
+    model,
+    load_audio,
+    combine_plots,
+    export_plot,
+    analyze_audio,
+    initialize_vars,
+    plot_data,
+)
 
 class GUI:
     def __init__(self, root):
@@ -29,7 +38,7 @@ class GUI:
         load_button.pack(pady=10)
 
         # Analyze Button
-        analyze_button = tk.Button(self.root, text="Analyze Audio", command=analyze_audio)
+        analyze_button = tk.Button(self.root, text="Analyze Audio", command=self.analyze_audio_and_plot)
         analyze_button.pack(pady=10)
 
         # Display File Name
@@ -51,3 +60,38 @@ class GUI:
         # Export Button
         export_button = tk.Button(self.root, text="Export Plot", command=export_plot)
         export_button.pack(pady=10)
+
+        # Plot Frames
+        self.rt60_frame = tk.Frame(self.root, height=300)
+        self.rt60_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        self.waveform_frame = tk.Frame(self.root, height=300)
+        self.waveform_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+    def visualize_in_gui(self, fig, canvas_frame):
+        """Embed Matplotlib figure into a Tkinter frame."""
+        for widget in canvas_frame.winfo_children():
+            widget.destroy()  # Clear previous canvas
+
+        canvas = FigureCanvasTkAgg(fig, master=canvas_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+    def analyze_audio_and_plot(self):
+        """Perform audio analysis and plot results in the GUI."""
+        # Ensure the audio file is loaded and analyze
+        analyze_audio()
+
+        # Plot RT60 data
+        rt60_data = {
+            "Low": {"x": model.time, "y": model.rt60[0]},
+            "Mid": {"x": model.time, "y": model.rt60[1]},
+            "High": {"x": model.time, "y": model.rt60[2]},
+        }
+        rt60_fig = plot_data(rt60_data, plot_type="line", title="RT60 Over Time", x_label="Time (s)", y_label="RT60 (s)")
+        self.visualize_in_gui(rt60_fig, self.rt60_frame)
+
+        # Plot waveform data
+        waveform_data = {"x": model.time, "y": model.channels}
+        waveform_fig = plot_data(waveform_data, plot_type="line", title="Waveform", x_label="Time (s)", y_label="Amplitude")
+        self.visualize_in_gui(waveform_fig, self.waveform_frame)
