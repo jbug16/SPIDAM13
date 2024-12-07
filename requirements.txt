@@ -1,0 +1,5 @@
+' things needed to pip install:
+      - pydub
+      - scipy
+      - matplotlib
+      - numpy

@@ -5,7 +5,6 @@ from SPIDAM_model import Model
 import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 
 # Global StringVars to share state with the GUI
 file_ext = None
