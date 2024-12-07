@@ -63,6 +63,7 @@ class Model:
 
     # finds the reverb at t60 using other methods we define below
     def find_rt60(self):
+        # avg of low, mid, high freq rt60's minus .5
         self.rt60 = str(((self.local_rt60(1) + self.local_rt60(2) + self.local_rt60(3)) / 3) - 0.5)
 
     # gets data about file (time, channels, resonance)
@@ -88,13 +89,13 @@ class Model:
         self.sample_rate, self.data = wavfile.read(filename)
 
     # finds frequency and calculates the digital signal to decibals
-    def check_freq(self, gate):
+    def check_freq(self, freq_range):
         # see which frequency to find and save it  to target frequency
-        match gate:
+        match freq_range:
             case 1:
-                self.target_freq = self.mid_freq(self.freq)
-            case 2:
                 self.target_freq = self.low_freq(self.freq)
+            case 2:
+                self.target_freq = self.mid_freq(self.freq)
             case 3:
                 self.target_freq = self.high_freq(self.freq)
         # index where freq is equal to target freq
@@ -106,7 +107,7 @@ class Model:
         self.db_data = db_data
         return db_data
 
-    # returns local reverb at t60 using index parameter i
+    # returns local reverb at t60 using index parameter i to specify which frequency
     def local_rt60(self, i):
         db_data = self.check_freq(i)
         # index of max value in decibal data
