@@ -101,6 +101,9 @@ class Model:
         freq_index = np.where(self.freq == self.target_freq)[0][0]
         # find sound data in spectrogram using index
         data_for_frequency = self.spec[freq_index]
+
+        epsilon = 1e-10
+        data_for_frequency = data_for_frequency + epsilon
         # signal to db
         db_data = 10 * np.log10(data_for_frequency)
         self.db_data = db_data

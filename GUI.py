@@ -5,7 +5,8 @@ from controller import (
     initialize_vars,
     plot_wave,
     placeholder_graph,
-    update_plot
+    update_plot,
+    plot_fft
 )
 
 class GUI:
@@ -75,26 +76,44 @@ class GUI:
         graph_frame = tk.Frame(self.root)
         graph_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
 
-        # Graphs
+        # Wave Graphs
         self.wave_graph = tk.Frame(graph_frame)
-        self.wave_graph.pack(side=tk.TOP, pady=10)
+        self.wave_graph.grid(row=0, column=0, pady=10, sticky="nsew")
         placeholder_graph(self.wave_graph)
 
-        # Export Button
+        # Wave Export Button
         wave_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot(plot_wave(self.wave_graph), f"{self.file_name.get()[:-4]}_wave_exported_plot"))
-        wave_export_button.pack(side=tk.TOP, pady=10)
+        wave_export_button.grid(row=1, column=0, pady=10)
 
+        # RT60 Graph
         self.rt60_graph = tk.Frame(graph_frame)
-        self.rt60_graph.pack(side=tk.TOP, pady=10)
+        self.rt60_graph.grid(row=2, column=0, pady=10, sticky="nsew")
         placeholder_graph(self.rt60_graph)
 
-        # Export Button
+        # RT60 Export Button
         rt60_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot(update_plot(self.rt60_graph, lb), f"{self.file_name.get()[:-4]}_rt60_exported_plot"))
-        rt60_export_button.pack(side=tk.TOP, pady=10)
+        rt60_export_button.grid(row=3, column=0, pady=10)
+
+        # FFT Graph
+        self.fft_graph = tk.Frame(graph_frame)
+        self.fft_graph.grid(row=4, column=0, pady=10, sticky="nsew")
+        placeholder_graph(self.fft_graph)
+
+        # FFT Export Button
+        fft_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot(plot_fft(self.fft_graph), f"{self.file_name.get()[:-4]}_fft_exported_plot"))
+        fft_export_button.grid(row=5, column=0, pady=10)
+
+        # Make sure all graphs fit
+        graph_frame.grid_rowconfigure(0, weight=1)
+        graph_frame.grid_rowconfigure(2, weight=1)
+        graph_frame.grid_rowconfigure(4, weight=1)
+        graph_frame.grid_columnconfigure(0, weight=1)
 
     def load_audio_button(self):
+        # Load waveform if file selected
         try:
             load_file()
             plot_wave(self.wave_graph)
+            plot_fft(self.fft_graph)
         except Exception:
             placeholder_graph(self.wave_graph)

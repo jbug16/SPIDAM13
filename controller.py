@@ -5,6 +5,7 @@ from SPIDAM_model import Model
 import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 
 # Global StringVars to share state with the GUI
 file_ext = None
@@ -75,7 +76,7 @@ def plot_wave(frame):
     model.get_waveform_data()
 
     # Create figure
-    fig = Figure(figsize=(8, 4), dpi=100)
+    fig = Figure(figsize=(6, 3), dpi=100)
 
     # Clear and add subplot
     fig.clf()
@@ -96,7 +97,7 @@ def plot_wave(frame):
 
 def placeholder_graph(frame):
     # Add an empty graph to the graph frame
-    fig = Figure(figsize=(8, 4), dpi=100)
+    fig = Figure(figsize=(6, 3), dpi=100)
     ax = fig.add_subplot(111)
     ax.set_title("No data available")
     ax.set_xlabel("N/A")
@@ -114,7 +115,7 @@ def graph_rt60(frame, freq_bands):
     model.get_waveform_data()
 
     # Create a new figure
-    fig = Figure(figsize=(8, 4), dpi=100)
+    fig = Figure(figsize=(6, 3), dpi=100)
     ax = fig.add_subplot(111)
 
     # Define a dictionary to map frequency bands to integers
@@ -171,3 +172,42 @@ def export_plot(fig, file_name):
         print(f"Plot successfully exported to {file_name}.")
     except Exception as e:
         print(f"An error occurred while exporting the plot: {e}")
+
+def plot_fft(frame=None):
+    # Ensure the data is preprocessed before plotting
+    if model.spec is None or model.freq is None:
+        raise ValueError("Preprocessing has not been done. Call preprocess_data() first.")
+
+    # Create a new figure
+    fig = Figure(figsize=(6, 3), dpi=100)
+    ax = fig.add_subplot(111)
+
+    # Plot the FFT (Spectrogram) data
+    epsilon = 1e-10
+    safe_spec = model.spec + epsilon
+    c = ax.pcolormesh(model.graph_time, model.freq, 10 * np.log10(safe_spec), cmap='inferno')
+    ax.set_ylabel('Frequency (Hz)')
+    ax.set_xlabel('Time (s)')
+    ax.set_title(f'Frequency Spectrum for {os.path.basename(model.original_file)}')
+
+    # Add color bar to show decibel scale
+    cbar = fig.colorbar(c, ax=ax, orientation='vertical')
+    cbar.set_label('Power (dB)')
+
+    # Optional: You can add additional functionality here, like marking specific frequencies
+    if model.target_freq is not None:
+        ax.axhline(model.target_freq, color='r', linestyle='--', label=f'Target Frequency: {model.target_freq} Hz')
+        ax.legend()
+
+    # Embed the figure into the tkinter frame (if frame is provided)
+    if frame is not None:
+        # Reset the frame to clear old plots
+        for widget in frame.winfo_children():
+            widget.destroy()
+
+        # Embed the figure into the tkinter frame
+        canvas = FigureCanvasTkAgg(fig, frame)
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        canvas.draw()
+    
+    return fig
