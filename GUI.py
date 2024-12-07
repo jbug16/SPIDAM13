@@ -2,7 +2,6 @@ import tkinter as tk
 from controller import (
     load_file,
     export_plot,
-    graph_rt60,
     initialize_vars,
     plot_wave,
     placeholder_graph,
@@ -82,7 +81,7 @@ class GUI:
         placeholder_graph(self.wave_graph)
 
         # Export Button
-        wave_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot("wave_exported_plot.png"))
+        wave_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot(plot_wave(self.wave_graph), f"{self.file_name.get()[:-4]}_wave_exported_plot"))
         wave_export_button.pack(side=tk.TOP, pady=10)
 
         self.rt60_graph = tk.Frame(graph_frame)
@@ -90,12 +89,12 @@ class GUI:
         placeholder_graph(self.rt60_graph)
 
         # Export Button
-        rt60_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot("rt60_exported_plot.png"))
+        rt60_export_button = tk.Button(graph_frame, text="Export Plot", command=lambda: export_plot(update_plot(self.rt60_graph, lb), f"{self.file_name.get()[:-4]}_rt60_exported_plot"))
         rt60_export_button.pack(side=tk.TOP, pady=10)
 
     def load_audio_button(self):
         try:
             load_file()
             plot_wave(self.wave_graph)
-        except Exception as e:
+        except Exception:
             placeholder_graph(self.wave_graph)
